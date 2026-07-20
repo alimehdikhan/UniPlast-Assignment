@@ -14,21 +14,11 @@ export default defineConfig({
 	],
 	server: {
 		proxy: {
-			'/auth': 'http://localhost:3000',
-			'/config': 'http://localhost:3000',
-			'/send': 'http://localhost:3000',
-			'/report': 'http://localhost:3000',
-			'/dashboard': 'http://localhost:3000',
-			'/user': 'http://localhost:3000',
-			'/health': 'http://localhost:3000',
-			'/batch-status': 'http://localhost:3000',
-			'/batch-pause': 'http://localhost:3000',
-			'/batch-resume': 'http://localhost:3000',
-			'/batch-cancel': 'http://localhost:3000',
-			'/scheduled-jobs': 'http://localhost:3000',
-			'/parse-excel': 'http://localhost:3000',
-			'/provider-info': 'http://localhost:3000',
-			'/test-notification': 'http://localhost:3000'
+			'/api': {
+				target: 'http://localhost:3000',
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/, '')
+			}
 		}
 	}
 });

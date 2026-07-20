@@ -1,5 +1,5 @@
 // Centralized API client with error handling and credentials
-const API_BASE = '';  // Uses Vite proxy in dev
+const API_BASE = '/api';  // Uses Vite proxy in dev to avoid clashing with frontend routes
 
 interface FetchOptions extends RequestInit {
   skipJson?: boolean;

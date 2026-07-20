@@ -294,13 +294,20 @@ app.post("/config/smtp/test", async (c) => {
     // Import email service for testing
     const { emailService } = await import("../services/emailService");
 
+    let testPass = body.pass;
+    if (!testPass && body.configId) {
+      const existingConfigs = userDatabase.getUserSMTPConfigs(user.id);
+      const existing = existingConfigs.find(c => c.id === body.configId);
+      if (existing) testPass = existing.pass;
+    }
+
     const testConfig = {
       host: body.host,
       port: body.port || 587,
       secure: !!body.secure,
       auth: {
         user: body.user,
-        pass: body.pass,
+        pass: testPass,
       },
     };
 

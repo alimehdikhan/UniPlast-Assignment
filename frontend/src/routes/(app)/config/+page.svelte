@@ -102,6 +102,7 @@
     testingConnection = true;
     try {
       const res = await api.post('/config/smtp/test', {
+        configId: currentConfig.id,
         host: currentConfig.host,
         port: currentConfig.port,
         secure: currentConfig.secure,
