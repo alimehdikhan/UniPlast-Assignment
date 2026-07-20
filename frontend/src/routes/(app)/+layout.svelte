@@ -37,251 +37,110 @@
   }
 
   const navItems = [
-    { path: '/dashboard', icon: '📊', label: 'Dashboard' },
-    { path: '/send', icon: '✉️', label: 'Send Emails' },
-    { path: '/config', icon: '⚙️', label: 'SMTP Config' },
-    { path: '/reports', icon: '📈', label: 'Reports' },
-    { path: '/scheduled', icon: '📅', label: 'Scheduled Jobs' },
+    { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
+    { path: '/send', icon: 'send', label: 'Campaigns' },
+    { path: '/config', icon: 'settings', label: 'SMTP Config' },
+    { path: '/reports', icon: 'monitoring', label: 'Reports' },
+    { path: '/scheduled', icon: 'event', label: 'Scheduled Jobs' },
   ];
 
   function isActive(path: string): boolean {
     return currentPath === path || (path !== '/dashboard' && currentPath.startsWith(path));
   }
+
+  function toggleDrawer() {
+    sidebarOpen = !sidebarOpen;
+  }
 </script>
 
 {#if user}
-<div class="app-layout">
-  <!-- Mobile overlay -->
-  {#if sidebarOpen}
-    <div class="sidebar-overlay" onclick={() => sidebarOpen = false} role="presentation"></div>
-  {/if}
+<div class="bg-surface text-on-surface min-h-screen pb-24 md:pb-0 md:pl-[280px]">
+
+  <!-- Mobile Navigation Drawer Overlay -->
+  <div class="fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 md:hidden" 
+       class:opacity-0={!sidebarOpen} class:pointer-events-none={!sidebarOpen}
+       onclick={toggleDrawer} role="presentation"></div>
 
   <!-- Sidebar -->
-  <aside class="sidebar" class:open={sidebarOpen}>
-    <div class="sidebar-brand">
-      <span class="sidebar-logo">📧</span>
-      <span class="sidebar-title">Email Sender</span>
+  <aside class="h-full w-[280px] fixed left-0 top-0 z-50 bg-inverse-surface dark:bg-surface-container-lowest drawer-transition flex flex-col py-md shadow-xl md:translate-x-0" 
+         class:-translate-x-full={!sidebarOpen} id="drawer">
+    
+    <div class="px-6 mb-8">
+      <h1 class="font-headline-md text-headline-md text-primary-fixed">MailPrecision</h1>
     </div>
 
-    <nav class="sidebar-nav">
+    <div class="flex items-center px-6 py-4 mb-6">
+      <div class="w-12 h-12 rounded-full overflow-hidden mr-3 border-2 border-primary-fixed-dim bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-lg">
+        {user.name.charAt(0).toUpperCase()}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-label-md text-label-md text-white truncate">{user.name}</p>
+        <p class="text-xs text-outline-variant truncate">{user.email}</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 space-y-1">
       {#each navItems as item}
-        <a
-          href={item.path}
-          class="nav-item"
-          class:active={isActive(item.path)}
-          onclick={() => sidebarOpen = false}
-        >
-          <span class="nav-icon">{item.icon}</span>
-          <span class="nav-label">{item.label}</span>
-        </a>
+        {#if isActive(item.path)}
+          <a class="bg-primary-container text-on-primary-container rounded-full shadow-[0_0_15px_rgba(70,72,212,0.3)] flex items-center px-4 py-3 mx-2 active:translate-x-1 duration-150" href={item.path} onclick={() => sidebarOpen = false}>
+            <span class="material-symbols-outlined mr-3">{item.icon}</span>
+            <span class="font-label-md text-label-md">{item.label}</span>
+          </a>
+        {:else}
+          <a class="text-surface-variant flex items-center px-4 py-3 mx-2 hover:bg-white/10 rounded-full transition-colors active:translate-x-1 duration-150" href={item.path} onclick={() => sidebarOpen = false}>
+            <span class="material-symbols-outlined mr-3">{item.icon}</span>
+            <span class="font-label-md text-label-md">{item.label}</span>
+          </a>
+        {/if}
       {/each}
     </nav>
 
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar">{user.name.charAt(0).toUpperCase()}</div>
-        <div class="user-details">
-          <span class="user-name">{user.name}</span>
-          <span class="user-email">{user.email}</span>
-        </div>
-      </div>
-      <button class="logout-btn" onclick={handleLogout} title="Sign out">
-        ↗
+    <div class="px-6 py-4 border-t border-white/10 flex justify-between items-center">
+      <span class="px-3 py-1 bg-primary/20 text-primary-fixed-dim text-[10px] uppercase tracking-wider rounded-full border border-primary/30">Pro Plan</span>
+      <button onclick={handleLogout} class="text-surface-variant hover:text-error transition-colors p-2" title="Sign out">
+        <span class="material-symbols-outlined">logout</span>
       </button>
     </div>
   </aside>
 
-  <!-- Main content -->
-  <main class="main-content">
-    <header class="top-bar">
-      <button class="menu-btn" onclick={() => sidebarOpen = !sidebarOpen} aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="page-title">
-        {navItems.find(i => isActive(i.path))?.label || 'Dashboard'}
-      </div>
-      <div class="top-actions">
-        <span class="greeting">Hi, {user.name.split(' ')[0]}</span>
-      </div>
-    </header>
-
-    <div class="content-area">
-      {@render children()}
+  <!-- Top App Bar (Mobile & Tablet mostly) -->
+  <header class="w-full sticky top-0 z-40 bg-surface/70 dark:bg-surface-container/70 backdrop-blur-xl flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 border-b border-white/20 shadow-sm md:hidden">
+    <button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity active:scale-95 duration-200 md:hidden" onclick={toggleDrawer}>
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim md:hidden">MailPrecision</span>
+    <div class="w-8 h-8 rounded-full overflow-hidden border border-primary/20 bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">
+      {user.name.charAt(0).toUpperCase()}
     </div>
+  </header>
+
+  <main class="mt-6 md:mt-10 px-margin-mobile md:px-margin-desktop min-h-screen">
+    {@render children()}
   </main>
+
+  <!-- Bottom Navigation Bar (Mobile only) -->
+  <nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/80 dark:bg-surface-container/80 backdrop-blur-lg flex justify-around items-center h-20 pb-safe px-4 border-t border-white/30 shadow-lg md:hidden">
+    <a class="flex flex-col items-center justify-center {isActive('/dashboard') ? 'text-primary dark:text-primary-fixed-dim font-bold opacity-100' : 'text-on-surface-variant dark:text-outline-variant opacity-60'} hover:opacity-100 active:scale-90 duration-200" href="/dashboard">
+      <span class="material-symbols-outlined">home</span>
+      <span class="font-label-sm text-label-sm">Overview</span>
+    </a>
+    <a class="flex flex-col items-center justify-center {isActive('/send') ? 'text-primary dark:text-primary-fixed-dim font-bold opacity-100' : 'text-on-surface-variant dark:text-outline-variant opacity-60'} hover:opacity-100 active:scale-90 duration-200" href="/send">
+      <span class="material-symbols-outlined">mail</span>
+      <span class="font-label-sm text-label-sm">Campaigns</span>
+    </a>
+    <a class="flex flex-col items-center justify-center {isActive('/scheduled') ? 'text-primary dark:text-primary-fixed-dim font-bold opacity-100' : 'text-on-surface-variant dark:text-outline-variant opacity-60'} hover:opacity-100 active:scale-90 duration-200" href="/scheduled">
+      <span class="material-symbols-outlined">event</span>
+      <span class="font-label-sm text-label-sm">Scheduled</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-60 hover:opacity-100 active:scale-90 duration-200" href="#" onclick={handleLogout}>
+      <span class="material-symbols-outlined">logout</span>
+      <span class="font-label-sm text-label-sm">Logout</span>
+    </a>
+  </nav>
+
 </div>
 {:else}
-<div class="loading-screen">
-  <div class="spinner"></div>
+<div class="min-h-screen flex items-center justify-center bg-surface">
+  <div class="w-8 h-8 border-4 border-surface-container border-t-primary rounded-full animate-spin"></div>
 </div>
 {/if}
-
-<style>
-  .app-layout {
-    display: flex;
-    min-height: 100vh;
-    background: var(--bg-primary);
-  }
-
-  /* Sidebar */
-  .sidebar {
-    width: var(--sidebar-width);
-    background: var(--sidebar-bg);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 100;
-    transition: transform var(--transition-slow);
-  }
-  .sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 99;
-    display: none;
-  }
-
-  .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-  .sidebar-logo { font-size: 1.5rem; }
-  .sidebar-title { font-weight: 700; font-size: 1.125rem; color: white; }
-
-  .sidebar-nav {
-    flex: 1;
-    padding: 1rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    overflow-y: auto;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius);
-    color: var(--sidebar-text);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: all var(--transition);
-  }
-  .nav-item:hover {
-    background: var(--sidebar-hover);
-    color: var(--sidebar-text-active);
-  }
-  .nav-item.active {
-    background: var(--sidebar-active);
-    color: var(--sidebar-text-active);
-  }
-  .nav-icon { font-size: 1.125rem; width: 24px; text-align: center; }
-
-  .sidebar-footer {
-    padding: 1rem 1rem;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .user-info { display: flex; align-items: center; gap: 0.625rem; flex: 1; min-width: 0; }
-  .user-avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: var(--gradient);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.8125rem;
-    flex-shrink: 0;
-  }
-  .user-details { display: flex; flex-direction: column; min-width: 0; }
-  .user-name { color: white; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-email { color: var(--sidebar-text); font-size: 0.6875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .logout-btn {
-    background: none; border: none;
-    color: var(--sidebar-text);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-    transition: all var(--transition);
-  }
-  .logout-btn:hover { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-
-  /* Main Content */
-  .main-content {
-    flex: 1;
-    margin-left: var(--sidebar-width);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  .top-bar {
-    height: 60px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 1.5rem;
-    gap: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-  .menu-btn {
-    display: none;
-    flex-direction: column;
-    gap: 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-  }
-  .menu-btn span {
-    display: block;
-    width: 20px;
-    height: 2px;
-    background: var(--text-primary);
-    border-radius: 1px;
-    transition: all var(--transition);
-  }
-  .page-title { font-weight: 600; font-size: 1.125rem; }
-  .top-actions { margin-left: auto; }
-  .greeting { color: var(--text-secondary); font-size: 0.875rem; }
-
-  .content-area { padding: 1.5rem; flex: 1; }
-
-  .loading-screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
-    .sidebar.open { transform: translateX(0); }
-    .sidebar-overlay { display: block; }
-    .main-content { margin-left: 0; }
-    .menu-btn { display: flex; }
-    .content-area { padding: 1rem; }
-  }
-</style>

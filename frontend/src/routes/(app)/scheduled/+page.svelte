@@ -42,238 +42,114 @@
   }
 </script>
 
-<svelte:head><title>Scheduled Campaigns — Bulk Email Sender</title></svelte:head>
+<svelte:head><title>Scheduled Campaigns — MailPrecision</title></svelte:head>
 
-<div class="page-header">
+<div class="flex justify-between items-center mb-8">
   <div>
-    <h2>Scheduled Campaigns</h2>
-    <p class="text-muted">Manage your upcoming automated email blasts</p>
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Scheduled Campaigns</h2>
+    <p class="font-body-md text-on-surface-variant">Manage your upcoming automated email blasts</p>
   </div>
-  <button class="btn btn-outline" onclick={fetchJobs}>🔄 Refresh</button>
+  <button class="px-4 py-2 rounded-lg border border-outline-variant/50 text-on-surface-variant font-label-md hover:bg-surface-container-high transition-colors flex items-center bg-surface-bright" onclick={fetchJobs}>
+    <span class="material-symbols-outlined mr-2 text-[18px]">refresh</span> Refresh
+  </button>
 </div>
 
 {#if loading}
-  <div class="skeleton" style="height: 300px; border-radius: var(--radius-md);"></div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="glass-card h-[280px] rounded-xl animate-pulse bg-surface-container"></div>
+    <div class="glass-card h-[280px] rounded-xl animate-pulse bg-surface-container"></div>
+  </div>
 {:else if jobs.length === 0}
-  <div class="empty-state">
-    <span class="empty-icon">📅</span>
-    <h3>No Scheduled Campaigns</h3>
-    <p>You don't have any upcoming email campaigns.</p>
-    <a href="/send" class="btn btn-primary mt-4">Schedule a Campaign</a>
+  <div class="glass-card p-12 rounded-xl flex flex-col items-center justify-center text-center border-dashed border-2 border-outline-variant/50">
+    <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-4 opacity-50">event_busy</span>
+    <h3 class="font-headline-md text-headline-md text-on-surface mb-2">No Scheduled Campaigns</h3>
+    <p class="font-body-sm text-on-surface-variant mb-6">You don't have any upcoming email campaigns.</p>
+    <a href="/send" class="px-6 py-3 rounded-lg active-gradient text-white font-label-md hover:shadow-lg transition-shadow">Schedule a Campaign</a>
   </div>
 {:else}
-  <div class="jobs-grid">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {#each jobs as job}
-      <div class="job-card">
-        <div class="job-header">
-          <div class="job-status">
-            <span class="badge badge-{job.status}">{job.status}</span>
+      <div class="glass-card rounded-xl flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-outline-variant/30">
+        <div class="p-5 border-b border-outline-variant/20 flex justify-between items-start bg-surface-bright/50">
+          <div>
+            <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full 
+              {job.status === 'Scheduled' || job.status === 'scheduled' ? 'bg-info/10 text-info border border-info/20' : 
+               job.status === 'Running' || job.status === 'running' ? 'bg-success/10 text-success border border-success/20' : 
+               'bg-outline-variant/20 text-on-surface-variant'}">
+              {job.status}
+            </span>
           </div>
-          <div class="job-actions">
-            {#if job.status === 'scheduled'}
-              <button class="btn-cancel" onclick={() => cancelJob(job.id)} title="Cancel job">✕</button>
-            {/if}
-          </div>
+          {#if job.status === 'Scheduled' || job.status === 'scheduled'}
+            <button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors bg-surface" onclick={() => cancelJob(job.id)} title="Cancel job">
+              <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          {/if}
         </div>
         
-        <div class="job-body">
-          <h3 class="job-subject">{job.subject || 'Untitled Campaign'}</h3>
+        <div class="p-5 flex-1 flex flex-col">
+          <h3 class="font-headline-md text-lg text-on-surface font-bold mb-5 truncate" title={job.subject}>{job.subject || 'Untitled Campaign'}</h3>
           
-          <div class="job-details">
-            <div class="detail-item">
-              <span class="icon">📅</span>
-              <div class="detail-text">
-                <span class="label">Scheduled For</span>
-                <span class="value">{formatDate(job.scheduled_time)}</span>
+          <div class="grid grid-cols-1 gap-3 font-body-sm">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
+                <span class="material-symbols-outlined text-[16px]">calendar_clock</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wide">Scheduled For</span>
+                <span class="text-on-surface font-medium truncate">{formatDate(job.scheduled_time)}</span>
               </div>
             </div>
             
-            <div class="detail-item">
-              <span class="icon">👥</span>
-              <div class="detail-text">
-                <span class="label">Recipients</span>
-                <span class="value">{job.contact_count} contacts</span>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
+                <span class="material-symbols-outlined text-[16px]">group</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wide">Recipients</span>
+                <span class="text-on-surface font-medium">{job.contact_count} contacts</span>
               </div>
             </div>
             
-            <div class="detail-item">
-              <span class="icon">⚙️</span>
-              <div class="detail-text">
-                <span class="label">Configuration</span>
-                <span class="value">{job.config_name || 'Default Config'}</span>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
+                <span class="material-symbols-outlined text-[16px]">settings</span>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wide">Configuration</span>
+                <span class="text-on-surface font-medium truncate">{job.config_name || 'Default Config'}</span>
               </div>
             </div>
             
             {#if job.use_batch}
-              <div class="detail-item">
-                <span class="icon">📦</span>
-                <div class="detail-text">
-                  <span class="label">Mode</span>
-                  <span class="value">Batch Processing</span>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <span class="material-symbols-outlined text-[16px]">layers</span>
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wide">Mode</span>
+                  <span class="text-primary font-medium truncate">Batch Processing</span>
                 </div>
               </div>
             {/if}
             
             {#if job.notify_email}
-              <div class="detail-item">
-                <span class="icon">🔔</span>
-                <div class="detail-text">
-                  <span class="label">Notify</span>
-                  <span class="value">{job.notify_email}</span>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
+                  <span class="material-symbols-outlined text-[16px]">notifications</span>
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wide">Notify</span>
+                  <span class="text-on-surface font-medium truncate" title={job.notify_email}>{job.notify_email}</span>
                 </div>
               </div>
             {/if}
           </div>
         </div>
         
-        <div class="job-footer text-xs text-muted">
-          Job ID: {job.id}
+        <div class="p-3 bg-surface-container-lowest border-t border-outline-variant/20 text-center">
+          <span class="text-[10px] text-on-surface-variant font-mono">Job ID: {job.id.substring(0, 8)}...</span>
         </div>
       </div>
     {/each}
   </div>
 {/if}
-
-<style>
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-  
-  .jobs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  .job-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: all var(--transition);
-  }
-  
-  .job-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-  
-  .job-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-tertiary);
-  }
-  
-  .badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  .badge-scheduled { background: var(--info-bg); color: var(--info); }
-  .badge-running { background: var(--success-bg); color: var(--success); }
-  
-  .btn-cancel {
-    background: none;
-    border: none;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition);
-  }
-  .btn-cancel:hover {
-    background: var(--danger-bg);
-    color: var(--danger);
-  }
-  
-  .job-body {
-    padding: 1.25rem;
-    flex: 1;
-  }
-  
-  .job-subject {
-    font-size: 1.125rem;
-    margin-bottom: 1.25rem;
-    color: var(--text-primary);
-  }
-  
-  .job-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-  
-  .detail-item {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
-  }
-  
-  .icon {
-    background: var(--bg-tertiary);
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    flex-shrink: 0;
-  }
-  
-  .detail-text {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  
-  .label {
-    font-size: 0.6875rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  
-  .value {
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .job-footer {
-    padding: 0.75rem 1.25rem;
-    background: var(--bg-tertiary);
-    border-top: 1px solid var(--border);
-  }
-  
-  .empty-state {
-    padding: 4rem 2rem;
-    text-align: center;
-    background: var(--bg-secondary);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius-md);
-  }
-  .empty-icon { font-size: 3rem; margin-bottom: 1rem; display: inline-block; opacity: 0.5; }
-  
-  .btn { padding: 0.5rem 1rem; border-radius: var(--radius); font-weight: 500; cursor: pointer; text-decoration: none; border: 1px solid transparent; font-size: 0.875rem;}
-  .btn-outline { background: transparent; border-color: var(--border); color: var(--text-primary); }
-  .btn-outline:hover { background: var(--bg-tertiary); }
-  .btn-primary { background: var(--gradient); color: white; display: inline-block; }
-  .mt-4 { margin-top: 1rem; }
-</style>

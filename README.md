@@ -10,7 +10,7 @@ The application uses a modern separated architecture:
 
 ### 1. Frontend: SvelteKit 5
 - **Framework**: SvelteKit with Svelte 5 runes
-- **Styling**: Vanilla CSS with CSS custom properties (premium design system)
+- **Styling**: Tailwind CSS v3 (using the premium Lumina Mail System design tokens)
 - **Features**: Real-time dashboard polling, rich text editor (Quill), drag-and-drop file uploads
 - **State**: Event-driven polling system to minimize backend requests
 - **Location**: `/frontend` directory
@@ -79,6 +79,7 @@ The application will be available at **http://localhost:5173**.
 ## 🎨 UI/UX Requirements
 
 ### Design Principles
+- **Premium Aesthetics:** Uses Lumina Mail System tokens via Tailwind CSS (dark blue gradients, frosted glass cards).
 - **Clean and modern** design (avoid cluttered UI)
 - **Intuitive navigation** (clear tabs/sections)
 - **Responsive layout** (mobile, tablet, desktop)

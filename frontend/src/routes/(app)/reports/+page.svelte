@@ -60,52 +60,67 @@
   }
 </script>
 
-<svelte:head><title>Reports & Analytics — Bulk Email Sender</title></svelte:head>
+<svelte:head><title>Reports & Analytics — MailPrecision</title></svelte:head>
 
-<div class="page-header">
-  <div class="header-content">
-    <h2>Campaign Reports</h2>
-    <p class="text-muted">View email delivery logs and statistics</p>
+<div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+  <div>
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Campaign Reports</h2>
+    <p class="font-body-md text-on-surface-variant">View email delivery logs and statistics</p>
   </div>
-  <div class="header-actions">
-    <button class="btn btn-outline" onclick={downloadCSV}>📄 Export CSV</button>
-    <button class="btn btn-outline" onclick={downloadJSON}>{`{ }`} Export JSON</button>
-    <button class="btn btn-danger" onclick={clearLogs}>🗑️ Clear Logs</button>
+  <div class="flex gap-2">
+    <button class="px-4 py-2 rounded-lg border border-outline-variant/50 text-on-surface-variant font-label-md hover:bg-surface-container-high transition-colors flex items-center bg-surface-bright" onclick={downloadCSV}>
+      <span class="material-symbols-outlined mr-2 text-[18px]">description</span> Export CSV
+    </button>
+    <button class="px-4 py-2 rounded-lg border border-outline-variant/50 text-on-surface-variant font-label-md hover:bg-surface-container-high transition-colors flex items-center bg-surface-bright" onclick={downloadJSON}>
+      <span class="material-symbols-outlined mr-2 text-[18px]">data_object</span> Export JSON
+    </button>
+    <button class="px-4 py-2 rounded-lg bg-error-container text-on-error-container font-label-md hover:bg-error/20 transition-colors flex items-center" onclick={clearLogs}>
+      <span class="material-symbols-outlined mr-2 text-[18px]">delete</span> Clear Logs
+    </button>
   </div>
 </div>
 
 {#if loading}
-  <div class="skeleton" style="height: 120px; margin-bottom: 1.5rem;"></div>
-  <div class="skeleton" style="height: 400px;"></div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="glass-card h-28 rounded-xl animate-pulse bg-surface-container"></div>
+    <div class="glass-card h-28 rounded-xl animate-pulse bg-surface-container"></div>
+    <div class="glass-card h-28 rounded-xl animate-pulse bg-surface-container"></div>
+    <div class="glass-card h-28 rounded-xl animate-pulse bg-surface-container"></div>
+  </div>
+  <div class="glass-card h-[400px] rounded-xl animate-pulse bg-surface-container"></div>
 {:else}
   <!-- Stats Summary -->
   {#if stats}
-  <div class="stats-row">
-    <div class="stat-box">
-      <span class="stat-title">Total Sent Attempted</span>
-      <span class="stat-value">{stats.total}</span>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="glass-card p-5 rounded-xl border-l-4 border-outline-variant">
+      <span class="font-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Attempted</span>
+      <span class="font-headline-lg text-3xl text-on-surface font-bold">{stats.total}</span>
     </div>
-    <div class="stat-box success">
-      <span class="stat-title">Successfully Sent</span>
-      <span class="stat-value">{stats.sent}</span>
+    <div class="glass-card p-5 rounded-xl border-l-4 border-success">
+      <span class="font-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Successfully Sent</span>
+      <span class="font-headline-lg text-3xl text-on-surface font-bold">{stats.sent}</span>
     </div>
-    <div class="stat-box danger">
-      <span class="stat-title">Failed</span>
-      <span class="stat-value">{stats.failed}</span>
+    <div class="glass-card p-5 rounded-xl border-l-4 border-error">
+      <span class="font-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Failed</span>
+      <span class="font-headline-lg text-3xl text-on-surface font-bold">{stats.failed}</span>
     </div>
-    <div class="stat-box primary">
-      <span class="stat-title">Success Rate</span>
-      <span class="stat-value">{formatPercent(stats.successRate)}</span>
+    <div class="glass-card p-5 rounded-xl border-l-4 border-primary">
+      <span class="font-label-sm text-on-surface-variant uppercase tracking-wider block mb-1">Success Rate</span>
+      <span class="font-headline-lg text-3xl text-on-surface font-bold">{formatPercent(stats.successRate)}</span>
     </div>
   </div>
   {/if}
 
   <!-- Logs Table -->
-  <div class="card logs-card">
-    <div class="card-header">
-      <div class="filters">
-        <input type="text" placeholder="Search emails or subjects..." bind:value={searchQuery} class="search-input" />
-        <select bind:value={filterStatus} class="status-select">
+  <div class="glass-card rounded-xl overflow-hidden border border-outline-variant/30">
+    <div class="p-4 border-b border-outline-variant/30 bg-surface/50 flex flex-wrap gap-4 items-center justify-between">
+      <h3 class="font-headline-md text-lg text-on-surface">Delivery Logs</h3>
+      <div class="flex gap-4 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-64">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 text-[20px]">search</span>
+          <input type="text" placeholder="Search emails or subjects..." bind:value={searchQuery} class="w-full pl-10 pr-4 py-2 border border-outline-variant/50 rounded-lg bg-surface-bright focus:border-primary outline-none font-body-sm transition-colors" />
+        </div>
+        <select bind:value={filterStatus} class="pl-4 pr-8 py-2 border border-outline-variant/50 rounded-lg bg-surface-bright focus:border-primary outline-none font-body-sm transition-colors cursor-pointer">
           <option value="All">All Statuses</option>
           <option value="Sent">Sent (Success)</option>
           <option value="Failed">Failed</option>
@@ -114,43 +129,52 @@
       </div>
     </div>
     
-    <div class="table-container">
+    <div class="overflow-x-auto">
       {#if filteredLogs.length === 0}
-        <div class="empty-state">
-          <span class="empty-icon">📝</span>
-          <p>No logs found matching your criteria.</p>
+        <div class="p-12 text-center text-on-surface-variant flex flex-col items-center">
+          <span class="material-symbols-outlined text-[48px] opacity-30 mb-2">assignment</span>
+          <p class="font-label-md">No logs found matching your criteria.</p>
         </div>
       {:else}
-        <table class="table">
+        <table class="w-full text-left font-body-sm border-collapse">
           <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Recipient</th>
-              <th>Subject</th>
-              <th>Status</th>
-              <th>Details</th>
+            <tr class="border-b border-outline-variant/30 bg-surface-container-lowest/50 text-on-surface-variant font-label-sm">
+              <th class="py-4 px-6 font-semibold whitespace-nowrap">Timestamp</th>
+              <th class="py-4 px-6 font-semibold">Recipient</th>
+              <th class="py-4 px-6 font-semibold">Subject</th>
+              <th class="py-4 px-6 font-semibold">Status</th>
+              <th class="py-4 px-6 font-semibold">Details</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-outline-variant/20 bg-surface-bright/30">
             {#each filteredLogs as log (log.id)}
-              <tr>
-                <td class="text-nowrap">{formatDate(log.timestamp)}</td>
-                <td>
-                  <div class="recipient-info">
-                    <span class="email">{log.email}</span>
+              <tr class="hover:bg-surface-container-low transition-colors">
+                <td class="py-4 px-6 whitespace-nowrap text-on-surface-variant text-xs">{formatDate(log.timestamp)}</td>
+                <td class="py-4 px-6">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="font-medium text-on-surface">{log.email}</span>
                     {#if log.firstName || log.company}
-                      <span class="text-xs text-muted">
+                      <span class="text-[11px] text-on-surface-variant opacity-80">
                         {log.firstName || ''} {log.company ? `(${log.company})` : ''}
                       </span>
                     {/if}
                   </div>
                 </td>
-                <td><span class="truncate" title={log.subject}>{log.subject || '—'}</span></td>
-                <td>
-                  <span class="badge badge-{log.status.toLowerCase()}">{log.status}</span>
+                <td class="py-4 px-6 text-on-surface">
+                  <span class="inline-block max-w-[200px] truncate align-middle" title={log.subject}>{log.subject || '—'}</span>
                 </td>
-                <td class="text-xs text-muted truncate-msg" title={log.message || log.messageId || ''}>
-                  {log.message || log.messageId || '—'}
+                <td class="py-4 px-6">
+                  <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full 
+                    {log.status === 'Sent' ? 'bg-success/10 text-success' : 
+                     log.status === 'Failed' || log.status === 'Error' ? 'bg-error/10 text-error' : 
+                     'bg-outline-variant/20 text-on-surface-variant'}">
+                    {log.status}
+                  </span>
+                </td>
+                <td class="py-4 px-6 text-xs text-on-surface-variant opacity-80">
+                  <span class="inline-block max-w-[200px] truncate align-middle" title={log.message || log.messageId || ''}>
+                    {log.message || log.messageId || '—'}
+                  </span>
                 </td>
               </tr>
             {/each}
@@ -160,153 +184,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .header-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .stat-box {
-    background: var(--bg-secondary);
-    padding: 1.25rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .stat-box.success { border-bottom: 4px solid var(--success); }
-  .stat-box.danger { border-bottom: 4px solid var(--danger); }
-  .stat-box.primary { border-bottom: 4px solid var(--primary); }
-  
-  .stat-title { font-size: 0.8125rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; }
-  .stat-value { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
-  
-  .card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-  
-  .card-header {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-tertiary);
-  }
-  
-  .filters {
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .search-input {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-  }
-  
-  .status-select {
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    background: var(--bg-secondary);
-  }
-  
-  .table-container {
-    overflow-x: auto;
-  }
-  
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-  }
-  
-  .table th, .table td {
-    padding: 0.875rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-  
-  .table th {
-    font-weight: 600;
-    color: var(--text-secondary);
-    background: rgba(0,0,0,0.02);
-  }
-  
-  .table tbody tr:hover {
-    background: var(--bg-tertiary);
-  }
-  
-  .text-nowrap { white-space: nowrap; }
-  .recipient-info { display: flex; flex-direction: column; gap: 2px; }
-  .email { font-weight: 500; }
-  
-  .truncate {
-    display: inline-block;
-    max-width: 250px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-  }
-  
-  .truncate-msg {
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-  .badge-sent, .badge-success { background: var(--success-bg); color: var(--success); }
-  .badge-failed, .badge-error { background: var(--danger-bg); color: var(--danger); }
-  
-  .btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid transparent;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .btn-outline { background: transparent; border-color: var(--border); color: var(--text-primary); }
-  .btn-outline:hover { background: var(--bg-tertiary); }
-  .btn-danger { background: var(--danger); color: white; }
-  
-  .empty-state {
-    padding: 3rem;
-    text-align: center;
-    color: var(--text-secondary);
-  }
-  .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.5; }
-</style>

@@ -182,102 +182,117 @@
   }
 </script>
 
-<svelte:head><title>Compose & Send — Bulk Email Sender</title></svelte:head>
+<svelte:head><title>Compose & Send — MailPrecision</title></svelte:head>
 
-<div class="page-header">
-  <div>
-    <h2>Compose Campaign</h2>
-    <p class="text-muted">Set up and launch your bulk email campaign.</p>
-  </div>
+<div class="mb-6">
+  <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Compose Campaign</h2>
+  <p class="font-body-md text-on-surface-variant">Set up and launch your bulk email campaign.</p>
 </div>
 
 {#if loadingConfigs}
-  <div class="skeleton" style="height: 400px; border-radius: var(--radius-md);"></div>
+  <div class="glass-card h-[400px] rounded-xl animate-pulse bg-surface-container"></div>
 {:else if configs.length === 0}
-  <div class="empty-state card">
-    <span class="empty-icon">⚙️</span>
-    <h3>SMTP Configuration Required</h3>
-    <p>You need to set up at least one SMTP configuration before you can send emails.</p>
-    <a href="/config" class="btn btn-primary mt-4">Go to Config Settings</a>
+  <div class="glass-card p-12 rounded-xl flex flex-col items-center justify-center text-center border-dashed">
+    <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-4">settings_suggest</span>
+    <h3 class="font-headline-md text-headline-md text-on-surface mb-2">SMTP Configuration Required</h3>
+    <p class="font-body-sm text-on-surface-variant mb-6">You need to set up at least one SMTP configuration before you can send emails.</p>
+    <a href="/config" class="px-6 py-3 rounded-lg active-gradient text-white font-label-md hover:shadow-lg transition-shadow">Go to Config Settings</a>
   </div>
 {:else}
-  <form class="send-form" onsubmit={handleSend}>
-    <!-- Column 1: Main Content -->
-    <div class="main-column">
-      <div class="card">
-        <div class="card-header"><h3>Email Content</h3></div>
-        <div class="card-body">
-          <div class="form-group">
-            <label for="config">Send From <span class="text-danger">*</span></label>
-            <select id="config" bind:value={selectedConfigId} class="form-control" required>
+  <form onsubmit={handleSend} class="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-12">
+    <!-- Main Content Column -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="glass-card rounded-xl overflow-hidden">
+        <div class="p-6 border-b border-outline-variant/30 bg-surface/50">
+          <h3 class="font-headline-md text-headline-md text-on-surface">Email Content</h3>
+        </div>
+        <div class="p-6 space-y-6">
+          <div class="flex flex-col gap-1.5">
+            <label for="config" class="font-label-md text-on-surface-variant">Send From <span class="text-error">*</span></label>
+            <select id="config" bind:value={selectedConfigId} class="px-4 py-3 border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" required>
               {#each configs as config}
                 <option value={config.id}>{config.name} ({config.fromEmail}) {config.isDefault ? '- Default' : ''}</option>
               {/each}
             </select>
           </div>
           
-          <div class="form-group mt-3">
-            <label for="subject">Subject Line <span class="text-danger">*</span></label>
-            <input id="subject" type="text" bind:value={subject} class="form-control" placeholder="E.g., Special Offer for {{FirstName}} at {{Company}}" required />
-            <small class="text-muted">Use {"{{ColumnName}}"} for personalization based on Excel columns.</small>
+          <div class="flex flex-col gap-1.5">
+            <label for="subject" class="font-label-md text-on-surface-variant">Subject Line <span class="text-error">*</span></label>
+            <input id="subject" type="text" bind:value={subject} class="px-4 py-3 border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" placeholder="E.g., Special Offer for {{FirstName}} at {{Company}}" required />
+            <small class="text-on-surface-variant opacity-80 text-xs">Use {"{{ColumnName}}"} for personalization based on Excel columns.</small>
           </div>
           
-          <div class="form-group mt-3">
-            <label>Message Body</label>
-            <div class="editor-container">
-              <div id="editor"></div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-on-surface-variant">Message Body</label>
+            <div class="border border-outline-variant rounded-lg overflow-hidden bg-surface-bright transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+              <div id="editor" class="min-h-[350px]"></div>
             </div>
           </div>
           
-          <div class="divider"><span>OR</span></div>
+          <div class="flex items-center text-center text-on-surface-variant opacity-60">
+            <div class="flex-1 border-t border-outline-variant"></div>
+            <span class="px-4 font-label-sm uppercase">Or upload template</span>
+            <div class="flex-1 border-t border-outline-variant"></div>
+          </div>
           
-          <div class="form-group">
-            <label for="htmlTemplate">Upload HTML Template</label>
-            <input id="htmlTemplate" type="file" bind:files={htmlTemplate} accept=".html" class="file-input" />
-            <small class="text-muted">Overrides the editor content if provided.</small>
+          <div class="flex flex-col gap-1.5">
+            <label for="htmlTemplate" class="font-label-md text-on-surface-variant">HTML Template file</label>
+            <input id="htmlTemplate" type="file" bind:files={htmlTemplate} accept=".html" class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-label-sm file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-colors" />
+            <small class="text-on-surface-variant opacity-80 text-xs">Overrides the editor content if provided.</small>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Column 2: Settings -->
-    <div class="settings-column">
-      <!-- Contacts Card -->
-      <div class="card">
-        <div class="card-header"><h3>Recipients</h3></div>
-        <div class="card-body">
-          <div class="form-group">
-            <label for="excel">Excel/CSV File <span class="text-danger">*</span></label>
-            <input id="excel" type="file" bind:files={excelFile} onchange={handleExcelChange} accept=".xlsx,.xls,.csv" class="file-input" required />
+    <!-- Settings Column -->
+    <div class="lg:col-span-1 space-y-6">
+      
+      <!-- Contacts Area -->
+      <div class="glass-card rounded-xl overflow-hidden">
+        <div class="p-4 border-b border-outline-variant/30 bg-surface/50">
+          <h3 class="font-headline-md text-headline-md text-on-surface text-lg">Recipients</h3>
+        </div>
+        <div class="p-4 space-y-4">
+          <div class="flex flex-col gap-1.5">
+            <label for="excel" class="font-label-md text-on-surface-variant">Excel/CSV File <span class="text-error">*</span></label>
+            <div class="border-2 border-dashed border-outline-variant hover:border-primary transition-colors rounded-xl p-6 text-center cursor-pointer relative bg-surface-bright">
+              <input id="excel" type="file" bind:files={excelFile} onchange={handleExcelChange} accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
+              <span class="material-symbols-outlined text-[32px] text-primary mb-2">upload_file</span>
+              <p class="font-label-sm text-primary">Click or drag file to upload</p>
+              <p class="text-xs text-on-surface-variant mt-1">.xlsx, .xls, .csv</p>
+            </div>
+            {#if excelFile && excelFile.length > 0}
+              <div class="text-sm text-on-surface font-label-sm bg-surface-container-highest px-3 py-2 rounded-lg mt-2 flex items-center justify-between">
+                <span class="truncate">{excelFile[0].name}</span>
+                <span class="material-symbols-outlined text-[16px] text-success">check_circle</span>
+              </div>
+            {/if}
           </div>
           
           {#if totalContacts > 0}
-            <div class="preview-box mt-3">
-              <div class="preview-header">
-                <strong>Found {totalContacts} contacts</strong>
+            <div class="border border-outline-variant/50 rounded-lg overflow-hidden bg-surface-container-low">
+              <div class="p-2 border-b border-outline-variant/50 flex justify-between items-center bg-surface-container">
+                <strong class="font-label-sm text-on-surface">Found {totalContacts} contacts</strong>
+                <span class="px-2 py-0.5 bg-success/20 text-success text-[10px] uppercase font-bold rounded-full">Ready</span>
               </div>
-              <div class="preview-content">
+              <div class="p-3 text-sm space-y-1 max-h-[150px] overflow-y-auto">
                 {#each previewContacts as contact}
-                  <div class="preview-contact">
-                    <span>{contact.Email}</span>
-                    <span class="text-muted text-xs">{contact.FirstName || ''}</span>
+                  <div class="flex justify-between items-center py-1 border-b border-outline-variant/20 last:border-0">
+                    <span class="text-on-surface font-body-sm truncate">{contact.Email}</span>
+                    <span class="text-on-surface-variant text-xs truncate max-w-[80px]">{contact.FirstName || ''}</span>
                   </div>
                 {/each}
-                {#if totalContacts > 5}
-                  <div class="text-center text-muted text-xs mt-2">...and {totalContacts - 5} more</div>
-                {/if}
               </div>
-              
-              <div class="range-selector mt-3">
-                <label class="text-sm font-semibold">Send Range:</label>
-                <div class="range-inputs mt-2">
-                  <div class="form-group">
-                    <label class="text-xs">Start Index (0-based)</label>
-                    <input type="number" bind:value={emailRangeStart} min="0" max={Math.max(0, totalContacts - 1)} class="form-control form-control-sm" />
+              <div class="p-3 border-t border-outline-variant/50 bg-surface-container">
+                <label class="font-label-sm text-on-surface-variant block mb-2">Send Range</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-[10px] text-on-surface-variant block mb-1">Start Index</label>
+                    <input type="number" bind:value={emailRangeStart} min="0" max={Math.max(0, totalContacts - 1)} class="w-full px-2 py-1.5 text-sm border border-outline-variant rounded bg-surface-bright focus:border-primary outline-none" />
                   </div>
-                  <div class="form-group">
-                    <label class="text-xs">Count (Max {totalContacts - emailRangeStart})</label>
-                    <input type="number" bind:value={emailRangeCount} min="1" max={totalContacts - emailRangeStart} class="form-control form-control-sm" />
+                  <div>
+                    <label class="text-[10px] text-on-surface-variant block mb-1">Count</label>
+                    <input type="number" bind:value={emailRangeCount} min="1" max={totalContacts - emailRangeStart} class="w-full px-2 py-1.5 text-sm border border-outline-variant rounded bg-surface-bright focus:border-primary outline-none" />
                   </div>
                 </div>
               </div>
@@ -286,168 +301,98 @@
         </div>
       </div>
       
-      <!-- Sending Mode Card -->
-      <div class="card mt-4">
-        <div class="card-header"><h3>Sending Mode</h3></div>
-        <div class="card-body">
-          <div class="toggle-group">
-            <input type="checkbox" id="useBatch" bind:checked={useBatch} class="toggle-checkbox" />
-            <label for="useBatch" class="toggle-label">Enable Batch Processing</label>
-          </div>
+      <!-- Sending Mode -->
+      <div class="glass-card rounded-xl overflow-hidden">
+        <div class="p-4 border-b border-outline-variant/30 bg-surface/50">
+          <h3 class="font-headline-md text-headline-md text-on-surface text-lg">Sending Mode</h3>
+        </div>
+        <div class="p-4 space-y-4">
+          
+          <label class="flex items-center justify-between cursor-pointer group">
+            <span class="font-label-md text-on-surface group-hover:text-primary transition-colors">Enable Batch Processing</span>
+            <div class="relative inline-block w-12 h-6 rounded-full transition-colors duration-200 {useBatch ? 'bg-primary' : 'bg-surface-container-highest'}">
+              <input type="checkbox" bind:checked={useBatch} class="opacity-0 w-0 h-0" />
+              <span class="absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 {useBatch ? 'transform translate-x-6' : ''}"></span>
+            </div>
+          </label>
           
           {#if useBatch}
-            <div class="batch-settings mt-3 p-3 bg-tertiary rounded">
-              <div class="form-group">
-                <label>Emails per Batch</label>
-                <input type="number" bind:value={batchSize} class="form-control form-control-sm" min="1" />
+            <div class="p-3 bg-surface-container rounded-lg space-y-3 animate-fade-in border border-outline-variant/30">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-label-md text-on-surface-variant">Emails per Batch</label>
+                <input type="number" bind:value={batchSize} class="px-3 py-1.5 border border-outline-variant rounded-md bg-surface-bright focus:border-primary outline-none text-sm" min="1" />
               </div>
-              <div class="form-group mt-2">
-                <label>Delay between Batches (minutes)</label>
-                <input type="number" bind:value={batchDelay} class="form-control form-control-sm" min="1" />
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-label-md text-on-surface-variant">Batch Delay (minutes)</label>
+                <input type="number" bind:value={batchDelay} class="px-3 py-1.5 border border-outline-variant rounded-md bg-surface-bright focus:border-primary outline-none text-sm" min="1" />
               </div>
-              <div class="form-group mt-2">
-                <label>Delay between Emails (seconds)</label>
-                <input type="number" bind:value={emailDelay} class="form-control form-control-sm" min="1" />
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-label-md text-on-surface-variant">Email Delay (seconds)</label>
+                <input type="number" bind:value={emailDelay} class="px-3 py-1.5 border border-outline-variant rounded-md bg-surface-bright focus:border-primary outline-none text-sm" min="1" />
               </div>
             </div>
           {:else}
-            <div class="form-group mt-3">
-              <label>Delay between Emails (seconds)</label>
-              <input type="number" bind:value={delay} class="form-control form-control-sm" min="1" />
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-label-md text-on-surface-variant">Delay between Emails (seconds)</label>
+              <input type="number" bind:value={delay} class="px-3 py-2 border border-outline-variant rounded-md bg-surface-bright focus:border-primary outline-none text-sm" min="1" />
             </div>
           {/if}
           
-          <hr />
+          <hr class="border-outline-variant/30" />
           
-          <div class="toggle-group mt-3">
-            <input type="checkbox" id="scheduleEmail" bind:checked={scheduleEmail} class="toggle-checkbox" />
-            <label for="scheduleEmail" class="toggle-label">Schedule for Later</label>
-          </div>
+          <label class="flex items-center justify-between cursor-pointer group">
+            <span class="font-label-md text-on-surface group-hover:text-primary transition-colors">Schedule for Later</span>
+            <div class="relative inline-block w-12 h-6 rounded-full transition-colors duration-200 {scheduleEmail ? 'bg-primary' : 'bg-surface-container-highest'}">
+              <input type="checkbox" bind:checked={scheduleEmail} class="opacity-0 w-0 h-0" />
+              <span class="absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform duration-200 {scheduleEmail ? 'transform translate-x-6' : ''}"></span>
+            </div>
+          </label>
           
           {#if scheduleEmail}
-            <div class="schedule-settings mt-3 p-3 bg-tertiary rounded">
-              <div class="form-group">
-                <label>Date & Time ({userTimezone})</label>
-                <input type="datetime-local" bind:value={scheduledTime} class="form-control form-control-sm" />
+            <div class="p-3 bg-surface-container rounded-lg space-y-3 animate-fade-in border border-outline-variant/30">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-label-md text-on-surface-variant">Date & Time ({userTimezone})</label>
+                <input type="datetime-local" bind:value={scheduledTime} class="px-3 py-1.5 border border-outline-variant rounded-md bg-surface-bright focus:border-primary outline-none text-sm" />
               </div>
-              <div class="form-group mt-2">
-                <label>Notification Email (Optional)</label>
-                <input type="email" bind:value={notifyEmail} placeholder="alert@me.com" class="form-control form-control-sm" />
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-label-md text-on-surface-variant">Notification Email (Optional)</label>
+                <input type="email" bind:value={notifyEmail} placeholder="alert@me.com" class="px-3 py-1.5 border border-outline-variant rounded-md bg-surface-bright focus:border-primary outline-none text-sm" />
               </div>
             </div>
           {/if}
         </div>
         
-        <div class="card-footer text-right p-3 bg-tertiary border-top">
-          <button type="submit" class="btn btn-primary w-100" disabled={sending}>
+        <div class="p-4 border-t border-outline-variant/30 bg-surface-container-lowest">
+          <button type="submit" class="w-full py-3.5 rounded-lg active-gradient text-white font-label-md flex items-center justify-center hover:shadow-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed" disabled={sending}>
             {#if sending}
-              <span class="spinner-sm"></span> Processing...
+              <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+              Processing...
             {:else if scheduleEmail}
-              📅 Schedule Campaign
+              <span class="material-symbols-outlined mr-2 text-[20px]">calendar_clock</span>
+              Schedule Campaign
             {:else}
-              🚀 Send Emails Now
+              <span class="material-symbols-outlined mr-2 text-[20px]">send</span>
+              Send Campaign Now
             {/if}
           </button>
         </div>
       </div>
+      
     </div>
   </form>
 {/if}
 
 <style>
-  .send-form {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
+  :global(.ql-toolbar.ql-snow) {
+    border: none !important;
+    border-bottom: 1px solid rgba(199, 196, 215, 0.5) !important;
+    background: var(--surface-container-low, #f2f4f6);
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
   }
-  
-  @media (max-width: 992px) {
-    .send-form { grid-template-columns: 1fr; }
+  :global(.ql-container.ql-snow) {
+    border: none !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.9375rem !important;
   }
-  
-  .card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    height: fit-content;
-  }
-  .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
-  .card-header h3 { margin: 0; font-size: 1.125rem; }
-  .card-body { padding: 1.25rem; }
-  
-  .form-group { display: flex; flex-direction: column; gap: 0.375rem; }
-  label { font-size: 0.875rem; font-weight: 500; color: var(--text-primary); }
-  .text-danger { color: var(--danger); }
-  .text-muted { color: var(--text-secondary); }
-  
-  .form-control {
-    padding: 0.625rem 0.875rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    background: var(--bg-primary);
-  }
-  .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-bg); }
-  .form-control-sm { padding: 0.375rem 0.625rem; font-size: 0.8125rem; }
-  
-  .file-input {
-    padding: 0.5rem;
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-tertiary);
-    width: 100%;
-  }
-  
-  .editor-container {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  :global(.ql-toolbar.ql-snow) { border: none !important; border-bottom: 1px solid var(--border) !important; background: var(--bg-tertiary); }
-  :global(.ql-container.ql-snow) { border: none !important; height: 350px !important; font-family: inherit !important; font-size: 0.9375rem !important; }
-  
-  .divider {
-    display: flex; align-items: center; text-align: center; margin: 1.5rem 0; color: var(--text-tertiary);
-  }
-  .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
-  .divider span { padding: 0 10px; font-size: 0.75rem; font-weight: 600; }
-  
-  .preview-box { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .preview-header { padding: 0.5rem 0.75rem; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); font-size: 0.8125rem; }
-  .preview-content { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
-  .preview-contact { display: flex; justify-content: space-between; font-size: 0.8125rem; padding: 2px 0; }
-  
-  .range-selector { padding: 0.75rem; border-top: 1px solid var(--border); background: var(--bg-tertiary); }
-  .range-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  
-  .toggle-group { display: flex; align-items: center; gap: 0.5rem; }
-  .toggle-checkbox { width: 1.125rem; height: 1.125rem; cursor: pointer; }
-  .toggle-label { cursor: pointer; user-select: none; font-weight: 600; }
-  
-  .bg-tertiary { background: var(--bg-tertiary); }
-  .rounded { border-radius: var(--radius); }
-  .p-3 { padding: 1rem; }
-  .mt-2 { margin-top: 0.5rem; }
-  .mt-3 { margin-top: 1rem; }
-  .mt-4 { margin-top: 1.5rem; }
-  
-  .btn {
-    padding: 0.75rem 1rem; border: none; border-radius: var(--radius);
-    font-weight: 600; font-size: 0.9375rem; cursor: pointer;
-    display: inline-flex; justify-content: center; align-items: center; gap: 0.5rem;
-    transition: all var(--transition);
-  }
-  .btn-primary { background: var(--gradient); color: white; }
-  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-  .w-100 { width: 100%; }
-  
-  .spinner-sm {
-    width: 16px; height: 16px; border: 2px solid currentColor;
-    border-right-color: transparent; border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-  
-  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 </style>

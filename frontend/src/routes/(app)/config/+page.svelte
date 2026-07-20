@@ -122,73 +122,89 @@
   }
 </script>
 
-<svelte:head><title>SMTP Configuration — Bulk Email Sender</title></svelte:head>
+<svelte:head><title>SMTP Configuration — MailPrecision</title></svelte:head>
 
-<div class="page-header">
-  <p class="text-muted">Manage your email sending servers and credentials.</p>
-  <button class="btn btn-primary" onclick={openAddModal}>+ Add Configuration</button>
+<div class="flex justify-between items-center mb-8">
+  <div>
+    <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">SMTP Configuration</h2>
+    <p class="font-body-md text-on-surface-variant">Manage your email sending servers and credentials.</p>
+  </div>
+  <button class="px-5 py-2.5 rounded-lg active-gradient text-white font-label-md flex items-center shadow-md hover:shadow-lg transition-all" onclick={openAddModal}>
+    <span class="material-symbols-outlined mr-2">add</span>
+    Add Config
+  </button>
 </div>
 
-<div class="configs-grid">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   {#if loading}
-    <div class="skeleton" style="height: 200px;"></div>
-    <div class="skeleton" style="height: 200px;"></div>
+    <div class="glass-card h-[250px] rounded-xl animate-pulse bg-surface-container"></div>
+    <div class="glass-card h-[250px] rounded-xl animate-pulse bg-surface-container"></div>
   {:else if configs.length === 0}
-    <div class="empty-state">
-      <span class="empty-icon">⚙️</span>
-      <h3>No Configurations Found</h3>
-      <p>Add an SMTP server configuration to start sending emails.</p>
-      <button class="btn btn-primary" onclick={openAddModal}>Add Your First Config</button>
+    <div class="glass-card col-span-full p-12 rounded-xl flex flex-col items-center justify-center text-center border-dashed border-2 border-outline-variant/50">
+      <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-4 opacity-50">dns</span>
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-2">No Configurations Found</h3>
+      <p class="font-body-sm text-on-surface-variant mb-6">Add an SMTP server configuration to start sending emails.</p>
+      <button class="px-6 py-3 rounded-lg active-gradient text-white font-label-md hover:shadow-lg transition-shadow" onclick={openAddModal}>Add Your First Config</button>
     </div>
   {:else}
     {#each configs as config}
-      <div class="config-card" class:is-default={config.isDefault}>
+      <div class="glass-card rounded-xl overflow-hidden relative transition-all duration-300 hover:shadow-lg hover:-translate-y-1 {config.isDefault ? 'border-2 border-primary' : 'border border-outline-variant/30'}">
         {#if config.isDefault}
-          <div class="default-badge">Default</div>
+          <div class="absolute top-3 -right-6 bg-primary text-white text-[10px] font-bold uppercase py-1 px-8 rotate-45 shadow-sm shadow-primary/30 z-10">Default</div>
         {/if}
         
-        <div class="config-header">
-          <h3>{config.name}</h3>
-          <div class="config-actions">
-            <button class="icon-btn" onclick={() => openEditModal(config)} title="Edit">✏️</button>
-            <button class="icon-btn danger" onclick={() => deleteConfig(config.id)} title="Delete">🗑️</button>
+        <div class="p-5 border-b border-outline-variant/20 flex justify-between items-start bg-surface-bright/50">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-lg {config.isDefault ? 'bg-primary/10 text-primary' : 'bg-surface-container-high text-on-surface-variant'} flex items-center justify-center mr-3">
+              <span class="material-symbols-outlined">router</span>
+            </div>
+            <h3 class="font-headline-md text-lg text-on-surface font-bold truncate max-w-[150px]">{config.name}</h3>
+          </div>
+          <div class="flex gap-1 z-20 relative">
+            <button class="w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-primary transition-colors" onclick={() => openEditModal(config)} title="Edit">
+              <span class="material-symbols-outlined text-[18px]">edit</span>
+            </button>
+            <button class="w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:bg-error-container hover:text-error transition-colors" onclick={() => deleteConfig(config.id)} title="Delete">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
           </div>
         </div>
         
-        <div class="config-details">
-          <div class="detail-row">
-            <span class="label">Host:</span>
-            <span class="value">{config.host}:{config.port}</span>
+        <div class="p-5 space-y-3 font-body-sm">
+          <div class="flex items-start justify-between border-b border-outline-variant/10 pb-2">
+            <span class="text-on-surface-variant w-16">Host:</span>
+            <span class="text-on-surface font-medium text-right break-all">{config.host}:{config.port}</span>
           </div>
-          <div class="detail-row">
-            <span class="label">Security:</span>
-            <span class="value">
-              {#if config.secure}
-                <span class="badge badge-secure">SSL/TLS</span>
-              {:else}
-                <span class="badge badge-insecure">STARTTLS / None</span>
-              {/if}
+          <div class="flex items-center justify-between border-b border-outline-variant/10 pb-2">
+            <span class="text-on-surface-variant w-20">Security:</span>
+            {#if config.secure}
+              <span class="px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded uppercase">SSL/TLS</span>
+            {:else}
+              <span class="px-2 py-0.5 bg-warning/10 text-warning text-[10px] font-bold rounded uppercase">STARTTLS/None</span>
+            {/if}
+          </div>
+          <div class="flex items-start justify-between border-b border-outline-variant/10 pb-2">
+            <span class="text-on-surface-variant w-16">User:</span>
+            <span class="text-on-surface font-medium text-right truncate max-w-[180px]" title={config.user}>{config.user}</span>
+          </div>
+          <div class="flex items-start justify-between pb-1">
+            <span class="text-on-surface-variant w-16">From:</span>
+            <span class="text-on-surface font-medium text-right truncate max-w-[180px]" title={config.fromEmail}>
+              {config.fromName ? `${config.fromName} <${config.fromEmail}>` : config.fromEmail}
             </span>
           </div>
-          <div class="detail-row">
-            <span class="label">User:</span>
-            <span class="value">{config.user}</span>
-          </div>
-          <div class="detail-row">
-            <span class="label">From:</span>
-            <span class="value">{config.fromName ? `${config.fromName} <${config.fromEmail}>` : config.fromEmail}</span>
-          </div>
-          <div class="detail-row">
-            <span class="label">Added:</span>
-            <span class="value text-sm text-muted">{formatDate(config.createdAt || '')}</span>
-          </div>
         </div>
         
-        <div class="config-footer">
+        <div class="p-4 bg-surface-container-lowest border-t border-outline-variant/20 flex justify-end">
           {#if !config.isDefault}
-            <button class="btn btn-sm btn-outline" onclick={() => setDefault(config.id)}>Set as Default</button>
+            <button class="px-3 py-1.5 rounded-md border border-outline-variant text-on-surface-variant text-xs font-label-sm hover:border-primary hover:text-primary transition-colors bg-surface" onclick={() => setDefault(config.id)}>
+              Set as Default
+            </button>
           {:else}
-            <span class="text-sm text-muted">Active for next campaign</span>
+            <span class="text-xs text-on-surface-variant italic py-1.5 flex items-center">
+              <span class="material-symbols-outlined text-[14px] mr-1">check_circle</span>
+              Active Configuration
+            </span>
           {/if}
         </div>
       </div>
@@ -197,70 +213,91 @@
 </div>
 
 {#if showModal}
-<div class="modal-backdrop" onclick={closeModal} role="presentation">
-  <div class="modal-content" onclick={(e) => e.stopPropagation()} role="dialog">
-    <div class="modal-header">
-      <h2>{formMode === 'add' ? 'Add SMTP Configuration' : 'Edit Configuration'}</h2>
-      <button class="close-btn" onclick={closeModal}>✕</button>
+<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onclick={closeModal} role="presentation">
+  <div class="bg-surface-bright rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden animate-slide-up relative" onclick={(e) => e.stopPropagation()} role="dialog">
+    
+    <div class="px-6 py-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface">
+      <h2 class="font-headline-md text-headline-md text-on-surface">{formMode === 'add' ? 'Add SMTP Configuration' : 'Edit Configuration'}</h2>
+      <button class="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors" onclick={closeModal}>
+        <span class="material-symbols-outlined">close</span>
+      </button>
     </div>
     
-    <form onsubmit={saveConfig} class="modal-body">
-      <div class="form-group">
-        <label for="c-name">Configuration Name <span class="required">*</span></label>
-        <input id="c-name" type="text" bind:value={currentConfig.name} placeholder="e.g. Work Gmail, Marketing Server" required />
+    <form onsubmit={saveConfig} class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+      
+      <div class="flex flex-col gap-1.5">
+        <label for="c-name" class="font-label-md text-on-surface-variant">Configuration Name <span class="text-error">*</span></label>
+        <input id="c-name" type="text" bind:value={currentConfig.name} placeholder="e.g. Work Gmail, Marketing Server" required class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
       </div>
       
-      <div class="form-row">
-        <div class="form-group flex-2">
-          <label for="c-host">SMTP Host <span class="required">*</span></label>
-          <input id="c-host" type="text" bind:value={currentConfig.host} placeholder="smtp.gmail.com" required />
+      <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-2 flex flex-col gap-1.5">
+          <label for="c-host" class="font-label-md text-on-surface-variant">SMTP Host <span class="text-error">*</span></label>
+          <input id="c-host" type="text" bind:value={currentConfig.host} placeholder="smtp.gmail.com" required class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
         </div>
-        <div class="form-group flex-1">
-          <label for="c-port">Port <span class="required">*</span></label>
-          <input id="c-port" type="number" bind:value={currentConfig.port} required />
-        </div>
-      </div>
-      
-      <div class="form-group checkbox-group">
-        <input id="c-secure" type="checkbox" bind:checked={currentConfig.secure} />
-        <label for="c-secure">Use SSL/TLS (Port 465 usually true, 587 usually false)</label>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label for="c-user">Username <span class="required">*</span></label>
-          <input id="c-user" type="text" bind:value={currentConfig.user} placeholder="email@example.com" required autocomplete="off" />
-        </div>
-        <div class="form-group flex-1">
-          <label for="c-pass">Password {formMode === 'add' ? '<span class="required">*</span>' : '<span class="text-xs text-muted">(Leave blank to keep current)</span>'}</label>
-          <input id="c-pass" type="password" bind:value={currentConfig.pass} placeholder="App Password" required={formMode === 'add'} autocomplete="new-password" />
+        <div class="col-span-1 flex flex-col gap-1.5">
+          <label for="c-port" class="font-label-md text-on-surface-variant">Port <span class="text-error">*</span></label>
+          <input id="c-port" type="number" bind:value={currentConfig.port} required class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
         </div>
       </div>
       
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label for="c-from-email">From Email <span class="required">*</span></label>
-          <input id="c-from-email" type="email" bind:value={currentConfig.fromEmail} placeholder="sender@example.com" required />
+      <label class="flex items-center gap-3 p-3 border border-outline-variant/50 rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors group">
+        <div class="relative inline-block w-10 h-5 rounded-full transition-colors duration-200 {currentConfig.secure ? 'bg-primary' : 'bg-surface-container-highest'}">
+          <input id="c-secure" type="checkbox" bind:checked={currentConfig.secure} class="opacity-0 w-0 h-0" />
+          <span class="absolute left-1 top-1 w-3 h-3 rounded-full bg-white transition-transform duration-200 {currentConfig.secure ? 'transform translate-x-5' : ''}"></span>
         </div>
-        <div class="form-group flex-1">
-          <label for="c-from-name">From Name</label>
-          <input id="c-from-name" type="text" bind:value={currentConfig.fromName} placeholder="John Doe" />
+        <div>
+          <span class="font-label-md text-on-surface block">Use SSL/TLS</span>
+          <span class="text-[10px] text-on-surface-variant">Port 465 usually true, 587 usually false</span>
+        </div>
+      </label>
+      
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label for="c-user" class="font-label-md text-on-surface-variant">Username <span class="text-error">*</span></label>
+          <input id="c-user" type="text" bind:value={currentConfig.user} placeholder="email@example.com" required autocomplete="off" class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="c-pass" class="font-label-md text-on-surface-variant flex items-center justify-between">
+            <span>Password {formMode === 'add' ? '<span class="text-error">*</span>' : ''}</span>
+            {#if formMode !== 'add'}<span class="text-[10px] opacity-70 font-normal italic">(Leave blank to keep)</span>{/if}
+          </label>
+          <input id="c-pass" type="password" bind:value={currentConfig.pass} placeholder="App Password" required={formMode === 'add'} autocomplete="new-password" class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
         </div>
       </div>
       
-      <div class="form-group checkbox-group">
-        <input id="c-default" type="checkbox" bind:checked={currentConfig.isDefault} />
-        <label for="c-default">Set as default configuration</label>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label for="c-from-email" class="font-label-md text-on-surface-variant">From Email <span class="text-error">*</span></label>
+          <input id="c-from-email" type="email" bind:value={currentConfig.fromEmail} placeholder="sender@example.com" required class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label for="c-from-name" class="font-label-md text-on-surface-variant">From Name</label>
+          <input id="c-from-name" type="text" bind:value={currentConfig.fromName} placeholder="John Doe" class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
+        </div>
       </div>
       
-      <div class="modal-actions">
-        <button type="button" class="btn btn-outline" onclick={testConnection} disabled={testingConnection}>
-          {#if testingConnection}<span class="spinner-sm"></span> Testing...{:else}🧪 Test Connection{/if}
+      <label class="flex items-center gap-3 p-3 bg-surface-container-low rounded-lg cursor-pointer border border-transparent hover:border-outline-variant/30 transition-colors">
+        <input type="checkbox" bind:checked={currentConfig.isDefault} class="w-4 h-4 rounded text-primary focus:ring-primary/20 accent-primary" />
+        <span class="font-label-md text-on-surface">Set as default configuration</span>
+      </label>
+      
+      <div class="pt-6 border-t border-outline-variant/30 flex justify-between items-center mt-2">
+        <button type="button" class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-label-md hover:bg-surface-container-high transition-colors flex items-center" onclick={testConnection} disabled={testingConnection}>
+          {#if testingConnection}
+            <div class="w-4 h-4 border-2 border-on-surface-variant/30 border-t-on-surface-variant rounded-full animate-spin mr-2"></div> Testing...
+          {:else}
+            <span class="material-symbols-outlined mr-2 text-[18px]">vital_signs</span> Test Connection
+          {/if}
         </button>
-        <div class="right-actions">
-          <button type="button" class="btn btn-ghost" onclick={closeModal}>Cancel</button>
-          <button type="submit" class="btn btn-primary" disabled={submitting}>
-            {#if submitting}<span class="spinner-sm"></span> Saving...{:else}Save Configuration{/if}
+        <div class="flex gap-3">
+          <button type="button" class="px-4 py-2 rounded-lg text-on-surface-variant font-label-md hover:bg-surface-container-high transition-colors" onclick={closeModal}>Cancel</button>
+          <button type="submit" class="px-6 py-2 rounded-lg active-gradient text-white font-label-md shadow-md hover:shadow-lg transition-all flex items-center disabled:opacity-60" disabled={submitting}>
+            {#if submitting}
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div> Saving...
+            {:else}
+              Save
+            {/if}
           </button>
         </div>
       </div>
@@ -270,280 +307,11 @@
 {/if}
 
 <style>
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+  @keyframes slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
-  
-  .configs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.25rem;
+  .animate-slide-up {
+    animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-  
-  .config-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    position: relative;
-    overflow: hidden;
-    transition: all var(--transition);
-  }
-  
-  .config-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--border-hover);
-  }
-  
-  .config-card.is-default {
-    border: 2px solid var(--primary);
-  }
-  
-  .default-badge {
-    position: absolute;
-    top: 12px;
-    right: -24px;
-    background: var(--primary);
-    color: white;
-    font-size: 0.625rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 2px 24px;
-    transform: rotate(45deg);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .config-header {
-    padding: 1.25rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  
-  .config-header h3 {
-    margin: 0;
-    font-size: 1.125rem;
-    color: var(--text-primary);
-  }
-  
-  .config-actions {
-    display: flex;
-    gap: 0.25rem;
-  }
-  
-  .icon-btn {
-    background: none;
-    border: none;
-    border-radius: var(--radius-sm);
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition);
-    opacity: 0.6;
-  }
-  
-  .icon-btn:hover {
-    opacity: 1;
-    background: var(--bg-tertiary);
-  }
-  
-  .icon-btn.danger:hover {
-    background: var(--danger-bg);
-  }
-  
-  .config-details {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .detail-row {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-  
-  .label {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    min-width: 60px;
-  }
-  
-  .value {
-    font-size: 0.875rem;
-    font-weight: 500;
-    word-break: break-all;
-  }
-  
-  .badge {
-    font-size: 0.6875rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 600;
-  }
-  .badge-secure { background: var(--success-bg); color: var(--success); }
-  .badge-insecure { background: var(--warning-bg); color: var(--warning); }
-  
-  .config-footer {
-    padding: 1rem 1.25rem;
-    background: var(--bg-tertiary);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-  
-  /* Buttons */
-  .btn {
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    font-weight: 500;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all var(--transition);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border: 1px solid transparent;
-  }
-  .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
-  .btn-primary { background: var(--gradient); color: white; border: none; }
-  .btn-primary:hover { background: var(--gradient-hover); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
-  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-  .btn-outline { background: transparent; border-color: var(--border); color: var(--text-primary); }
-  .btn-outline:hover { border-color: var(--border-hover); background: var(--bg-tertiary); }
-  .btn-ghost { background: transparent; color: var(--text-secondary); }
-  .btn-ghost:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-  
-  /* Modal */
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    animation: fadeIn 0.2s ease;
-  }
-  
-  .modal-content {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-xl);
-    width: 100%;
-    max-width: 600px;
-    box-shadow: var(--shadow-xl);
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    animation: slideIn 0.3s ease;
-  }
-  
-  .modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .modal-header h2 { margin: 0; font-size: 1.25rem; }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    transition: color var(--transition);
-  }
-  .close-btn:hover { color: var(--text-primary); }
-  
-  .modal-body {
-    padding: 1.5rem;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-  
-  .form-group { display: flex; flex-direction: column; gap: 0.375rem; }
-  .form-row { display: flex; gap: 1rem; }
-  .flex-1 { flex: 1; }
-  .flex-2 { flex: 2; }
-  
-  label { font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary); }
-  .required { color: var(--danger); }
-  
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"] {
-    padding: 0.625rem 0.875rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-primary);
-    font-size: 0.875rem;
-    transition: border-color var(--transition);
-  }
-  
-  input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary-bg);
-  }
-  
-  .checkbox-group {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .modal-actions {
-    margin-top: 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .right-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .spinner-sm {
-    width: 16px; height: 16px;
-    border: 2px solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-  
-  .empty-state {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    background: var(--bg-secondary);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius-lg);
-    text-align: center;
-  }
-  .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
-  .empty-state h3 { margin-bottom: 0.5rem; }
-  .empty-state p { color: var(--text-secondary); margin-bottom: 1.5rem; }
 </style>

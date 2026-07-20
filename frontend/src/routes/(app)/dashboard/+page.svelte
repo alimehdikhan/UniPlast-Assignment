@@ -63,238 +63,142 @@
       }, 1000);
     }
   });
+
+  let totalEmailsSent = $derived(batchStatus?.currentJob?.emailsSent || 0);
+  let totalEmailsFailed = $derived(batchStatus?.currentJob?.emailsFailed || 0);
+  let successRate = $derived(
+    totalEmailsSent + totalEmailsFailed > 0 
+      ? formatPercent(totalEmailsSent / (totalEmailsSent + totalEmailsFailed) * 100) 
+      : '—'
+  );
 </script>
 
-<svelte:head><title>Dashboard — Bulk Email Sender</title></svelte:head>
+<svelte:head><title>Dashboard — MailPrecision</title></svelte:head>
 
-<div class="dashboard">
-  <!-- Stats Cards -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon" style="background: var(--primary-bg); color: var(--primary);">📊</div>
-      <div class="stat-info">
-        <span class="stat-value">{pollStatus ? (pollStatus.hasActiveBatch ? 'Active' : 'Idle') : '—'}</span>
-        <span class="stat-label">System Status</span>
+<div class="space-y-6">
+  <!-- Hero Section: Glass Cards Bento-ish -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="glass-card md:col-span-1 p-md rounded-xl flex items-center space-x-4 border-l-4 border-primary">
+      <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+        <span class="material-symbols-outlined text-primary text-[32px]">send</span>
+      </div>
+      <div>
+        <p class="font-label-sm text-label-sm text-on-surface-variant">Active Batches</p>
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">{pollStatus?.activeBatchCount ?? 0}</h2>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background: var(--success-bg); color: var(--success);">⚡</div>
-      <div class="stat-info">
-        <span class="stat-value">{pollStatus?.activeBatchCount ?? 0}</span>
-        <span class="stat-label">Active Batches</span>
+    <div class="glass-card p-md rounded-xl flex flex-col justify-between border-l-4 border-error">
+      <div class="flex justify-between items-start mb-2">
+        <span class="material-symbols-outlined text-error">error</span>
+      </div>
+      <div>
+        <p class="font-label-sm text-label-sm text-on-surface-variant">Failed (Current)</p>
+        <h3 class="font-headline-md text-headline-md text-on-surface">{totalEmailsFailed}</h3>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background: var(--info-bg); color: var(--info);">📅</div>
-      <div class="stat-info">
-        <span class="stat-value">{pollStatus?.scheduledJobCount ?? 0}</span>
-        <span class="stat-label">Scheduled Jobs</span>
+    <div class="glass-card p-md rounded-xl flex flex-col justify-between border-l-4 border-secondary">
+      <div class="flex justify-between items-start mb-2">
+        <span class="material-symbols-outlined text-secondary">trending_up</span>
+        <div class="w-12 h-6 flex items-end space-x-1">
+          <div class="w-1 h-2 bg-secondary/30 rounded-full"></div>
+          <div class="w-1 h-4 bg-secondary/30 rounded-full"></div>
+          <div class="w-1 h-3 bg-secondary/30 rounded-full"></div>
+          <div class="w-1 h-5 bg-secondary rounded-full"></div>
+          <div class="w-1 h-4 bg-secondary rounded-full"></div>
+        </div>
+      </div>
+      <div>
+        <p class="font-label-sm text-label-sm text-on-surface-variant">Success Rate</p>
+        <h3 class="font-headline-md text-headline-md text-on-surface">{successRate}</h3>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background: var(--warning-bg); color: var(--warning);">🔄</div>
-      <div class="stat-info">
-        <span class="stat-value">{pollStatus?.pollNeeded ? `${(pollStatus.pollInterval / 1000).toFixed(0)}s` : 'Off'}</span>
-        <span class="stat-label">Poll Interval</span>
-      </div>
-    </div>
-  </div>
+  </section>
 
-  <!-- Active Batch Monitor -->
+  <!-- Active Campaign -->
   {#if batchStatus?.isRunning && batchStatus.currentJob}
     {@const job = batchStatus.currentJob}
-    <div class="card batch-monitor">
-      <div class="card-header">
-        <h3>⚡ Active Batch Job</h3>
-        <span class="badge badge-{job.status.toLowerCase()}">{job.status}</span>
-      </div>
-      <div class="card-body">
-        <div class="progress-section">
-          <div class="progress-info">
-            <span>Progress: {job.emailsSent + job.emailsFailed} / {job.totalContacts}</span>
-            <span>{job.totalContacts > 0 ? formatPercent((job.emailsSent + job.emailsFailed) / job.totalContacts * 100) : '0%'}</span>
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar progress-success" style="width: {job.totalContacts > 0 ? (job.emailsSent / job.totalContacts * 100) : 0}%"></div>
-            <div class="progress-bar progress-danger" style="width: {job.totalContacts > 0 ? (job.emailsFailed / job.totalContacts * 100) : 0}%"></div>
-          </div>
+    {@const progress = job.totalContacts > 0 ? ((job.emailsSent + job.emailsFailed) / job.totalContacts * 100) : 0}
+    
+    <section class="glass-card p-md rounded-xl relative overflow-hidden border-2 border-primary/20">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <span class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1 block">Live Campaign</span>
+          <h2 class="font-headline-md text-headline-md text-on-surface">Batch #{job.id}</h2>
+          <span class="inline-block mt-1 px-3 py-1 bg-surface-container-highest text-[10px] font-bold text-on-surface-variant rounded-full uppercase">{job.status}</span>
         </div>
-
-        <div class="batch-details">
-          <div class="detail"><span class="label">Sent</span><span class="value success">{job.emailsSent}</span></div>
-          <div class="detail"><span class="label">Failed</span><span class="value danger">{job.emailsFailed}</span></div>
-          <div class="detail"><span class="label">Batch</span><span class="value">{job.currentBatch}/{job.totalBatches}</span></div>
-          {#if countdownText}
-            <div class="detail"><span class="label">Next Batch</span><span class="value">{countdownText}</span></div>
-          {/if}
-        </div>
-
-        <div class="batch-actions">
+        <div class="flex gap-2">
           {#if job.status === 'Running'}
-            <button class="btn btn-sm btn-warning" onclick={pauseBatch}>⏸ Pause</button>
+            <button onclick={pauseBatch} class="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center text-warning hover:bg-warning/30 active:scale-90 transition-transform" title="Pause">
+              <span class="material-symbols-outlined">pause</span>
+            </button>
           {:else if job.status === 'Paused'}
-            <button class="btn btn-sm btn-success" onclick={resumeBatch}>▶ Resume</button>
+            <button onclick={resumeBatch} class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center text-success hover:bg-success/30 active:scale-90 transition-transform" title="Resume">
+              <span class="material-symbols-outlined">play_arrow</span>
+            </button>
           {/if}
-          <button class="btn btn-sm btn-danger" onclick={cancelBatch}>✕ Cancel</button>
+          <button onclick={cancelBatch} class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error hover:bg-error/20 active:scale-90 transition-transform" title="Cancel">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
       </div>
-    </div>
+      <div class="space-y-2">
+        <div class="flex justify-between font-label-sm text-label-sm">
+          <span class="text-on-surface-variant">Progress</span>
+          <span class="text-primary font-bold">{formatPercent(progress)}</span>
+        </div>
+        <div class="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden flex">
+          <div class="h-full active-gradient progress-shine" style="width: {job.totalContacts > 0 ? (job.emailsSent / job.totalContacts * 100) : 0}%"></div>
+          <div class="h-full bg-error" style="width: {job.totalContacts > 0 ? (job.emailsFailed / job.totalContacts * 100) : 0}%"></div>
+        </div>
+        <div class="flex justify-between pt-2">
+          <p class="text-[12px] text-on-surface-variant italic">
+            {#if countdownText}Next batch in: {countdownText}{:else}Running...{/if}
+          </p>
+          <p class="text-[12px] font-bold text-on-surface">{job.emailsSent + job.emailsFailed} / {job.totalContacts}</p>
+        </div>
+      </div>
+    </section>
   {/if}
 
   <!-- Scheduled Jobs -->
-  <div class="card">
-    <div class="card-header">
-      <h3>📅 Scheduled Jobs</h3>
+  <section class="space-y-4">
+    <div class="flex justify-between items-center">
+      <h3 class="font-headline-md text-headline-md text-on-surface">Scheduled Jobs</h3>
+      <a href="/scheduled" class="text-primary font-label-md text-label-md hover:underline">View All</a>
     </div>
-    <div class="card-body">
+    
+    <div class="space-y-3">
       {#if loading}
-        <div class="skeleton" style="height: 60px; margin-bottom: 8px;"></div>
-        <div class="skeleton" style="height: 60px;"></div>
+        <div class="glass-card h-20 rounded-xl animate-pulse bg-surface-container"></div>
+        <div class="glass-card h-20 rounded-xl animate-pulse bg-surface-container"></div>
       {:else if scheduledJobs.length === 0}
-        <div class="empty-state">
-          <span class="empty-icon">📭</span>
-          <p>No scheduled jobs</p>
-          <a href="/send" class="btn btn-sm btn-primary">Schedule a campaign</a>
+        <div class="glass-card p-8 rounded-xl flex flex-col items-center justify-center text-on-surface-variant border-dashed">
+          <span class="material-symbols-outlined text-[48px] mb-2 opacity-50">event_busy</span>
+          <p class="font-label-md">No scheduled jobs</p>
+          <a href="/send" class="mt-4 px-4 py-2 bg-primary/10 text-primary rounded-full font-label-sm hover:bg-primary/20 transition-colors">Schedule a Campaign</a>
         </div>
       {:else}
-        <div class="jobs-list">
-          {#each scheduledJobs as job}
-            <div class="job-item">
-              <div class="job-info">
-                <strong>{job.subject || 'Untitled Campaign'}</strong>
-                <span class="text-muted text-sm">
-                  {formatDate(job.scheduled_time)} · {job.contact_count} contacts
-                  {#if job.config_name} · {job.config_name}{/if}
-                </span>
+        {#each scheduledJobs.slice(0, 5) as job}
+          <div class="glass-card p-4 rounded-xl flex items-center justify-between {job.status === 'Running' ? 'border-l-4 border-primary/40' : ''}">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-lg {job.status === 'Running' ? 'bg-primary-fixed text-primary' : 'bg-tertiary-fixed text-on-tertiary-fixed'} flex items-center justify-center">
+                <span class="material-symbols-outlined">{job.status === 'Running' ? 'flash_on' : 'event'}</span>
               </div>
-              <span class="badge badge-{job.status}">{job.status}</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-label-md text-label-md text-on-surface truncate">{job.subject || 'Untitled Campaign'}</p>
+                <p class="text-[12px] text-on-surface-variant truncate">{formatDate(job.scheduled_time)} · {job.contact_count} contacts</p>
+              </div>
             </div>
-          {/each}
-        </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold ml-4
+              {job.status === 'Scheduled' ? 'bg-surface-container-highest text-on-surface-variant' : 
+               job.status === 'Running' ? 'bg-primary/10 text-primary' : 
+               job.status === 'Failed' ? 'bg-error/10 text-error' : 
+               'bg-surface-container text-outline'}">
+              {job.status.toUpperCase()}
+            </span>
+          </div>
+        {/each}
       {/if}
     </div>
-  </div>
+  </section>
 </div>
-
-<style>
-  .dashboard { display: flex; flex-direction: column; gap: 1.5rem; }
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-  .stat-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: all var(--transition);
-  }
-  .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-  .stat-icon {
-    width: 48px; height: 48px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    flex-shrink: 0;
-  }
-  .stat-info { display: flex; flex-direction: column; }
-  .stat-value { font-size: 1.25rem; font-weight: 700; }
-  .stat-label { font-size: 0.75rem; color: var(--text-secondary); }
-
-  .card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-  .card-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .card-header h3 { font-size: 1rem; }
-  .card-body { padding: 1.25rem; }
-
-  .badge {
-    padding: 0.25rem 0.625rem;
-    border-radius: 999px;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-  .badge-running, .badge-Running { background: var(--success-bg); color: var(--success); }
-  .badge-paused, .badge-Paused { background: var(--warning-bg); color: var(--warning); }
-  .badge-scheduled { background: var(--info-bg); color: var(--info); }
-  .badge-completed, .badge-Completed { background: var(--primary-bg); color: var(--primary); }
-  .badge-failed, .badge-Failed, .badge-cancelled { background: var(--danger-bg); color: var(--danger); }
-
-  .progress-section { margin-bottom: 1rem; }
-  .progress-info { display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 0.5rem; }
-  .progress-bar-container {
-    height: 8px;
-    background: var(--bg-tertiary);
-    border-radius: 4px;
-    overflow: hidden;
-    display: flex;
-  }
-  .progress-bar { height: 100%; transition: width 0.5s ease; }
-  .progress-success { background: var(--success); }
-  .progress-danger { background: var(--danger); }
-
-  .batch-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
-  .detail { display: flex; flex-direction: column; text-align: center; padding: 0.5rem; background: var(--bg-tertiary); border-radius: var(--radius); }
-  .detail .label { font-size: 0.6875rem; color: var(--text-secondary); text-transform: uppercase; }
-  .detail .value { font-weight: 700; font-size: 1.125rem; }
-  .detail .value.success { color: var(--success); }
-  .detail .value.danger { color: var(--danger); }
-
-  .batch-actions { display: flex; gap: 0.5rem; }
-
-  .btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: var(--radius);
-    font-weight: 500;
-    font-size: 0.8125rem;
-    cursor: pointer;
-    transition: all var(--transition);
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-  .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
-  .btn-primary { background: var(--gradient); color: white; }
-  .btn-primary:hover { background: var(--gradient-hover); }
-  .btn-warning { background: var(--warning); color: white; }
-  .btn-success { background: var(--success); color: white; }
-  .btn-danger { background: var(--danger); color: white; }
-
-  .empty-state {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-secondary);
-  }
-  .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
-  .empty-state p { margin-bottom: 1rem; }
-
-  .jobs-list { display: flex; flex-direction: column; gap: 0.5rem; }
-  .job-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    background: var(--bg-tertiary);
-    border-radius: var(--radius);
-    gap: 1rem;
-  }
-  .job-info { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
-  .job-info strong { font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .batch-monitor { border: 2px solid var(--success); }
-</style>
