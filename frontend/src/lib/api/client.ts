@@ -39,6 +39,10 @@ async function request<T = any>(endpoint: string, options: FetchOptions = {}): P
       errorData = { message: response.statusText };
     }
 
+    if (response.status === 401 && typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
+
     throw new ApiError(
       errorData?.message || `HTTP ${response.status}: ${response.statusText}`,
       response.status,
