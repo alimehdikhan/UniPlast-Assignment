@@ -260,7 +260,7 @@
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="c-pass" class="font-label-md text-on-surface-variant flex items-center justify-between">
-            <span>Password {formMode === 'add' ? '<span class="text-error">*</span>' : ''}</span>
+            <span>Password {#if formMode === 'add'}<span class="text-error">*</span>{/if}</span>
             {#if formMode !== 'add'}<span class="text-[10px] opacity-70 font-normal italic">(Leave blank to keep)</span>{/if}
           </label>
           <input id="c-pass" type="password" bind:value={currentConfig.pass} placeholder="App Password" required={formMode === 'add'} autocomplete="new-password" class="px-4 py-2.5 border border-outline-variant rounded-lg bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" />
