@@ -4,19 +4,55 @@
 
 This is a **Bulk Email Sender** web application currently built with **Hono** (backend) and vanilla **HTML/CSS/JavaScript** (frontend). Your assignment is to **migrate the frontend to SvelteKit** while maintaining the existing Hono backend functionality.
 
-### Current Tech Stack
-- **Backend**: Hono (Bun runtime)
-- **Frontend**: Vanilla HTML/CSS/JS with Bootstrap 5, Quill Editor
-- **Database**: SQLite (via Bun:sqlite)
-- **Authentication**: Argon2 password hashing with session tokens
-- **Email**: Nodemailer with SMTP
+## 🏗️ Architecture (SvelteKit + Node.js)
 
-### Target Tech Stack
-- **Backend**: Hono (keep as-is, migrate to Node.js/Deno with npm/pnpm/yarn)
-- **Frontend**: **SvelteKit** (modern, enhanced version)
-- **Database**: SQLite (maintain existing schema)
-- **State Management**: TanStack Query (optional)
-- **Authentication**: Same logic, adapted for SvelteKit
+The application uses a modern separated architecture:
+
+### 1. Frontend: SvelteKit 5
+- **Framework**: SvelteKit with Svelte 5 runes
+- **Styling**: Vanilla CSS with CSS custom properties (premium design system)
+- **Features**: Real-time dashboard polling, rich text editor (Quill), drag-and-drop file uploads
+- **State**: Event-driven polling system to minimize backend requests
+- **Location**: `/frontend` directory
+
+### 2. Backend: Node.js (Hono + better-sqlite3)
+- **Framework**: Hono (running on Node.js via `@hono/node-server`)
+- **Database**: SQLite (`better-sqlite3`)
+- **Email Engine**: Nodemailer
+- **Authentication**: Argon2 hashing, secure session cookies
+- **Location**: Root directory (`/src`)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js >= 18.0.0
+- npm or bun
+
+### 1. Backend Setup
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+### 2. Frontend Setup
+In a new terminal:
+```bash
+# Navigate to frontend
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+The application will be available at **http://localhost:5173**.
 
 ---
 

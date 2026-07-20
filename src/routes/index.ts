@@ -1,14 +1,14 @@
 import { Hono } from "hono";
-import { serveStatic } from "hono/bun";
 
 const app = new Hono();
 
-// Serve static files
-app.use("/public/*", serveStatic({ root: "./" }));
-app.use("/css/*", serveStatic({ root: "./public" }));
-app.use("/js/*", serveStatic({ root: "./public" }));
-
-// Home route - serve the main HTML file
-app.get("/", serveStatic({ path: "./public/index.html" }));
+// Root route - API only (frontend is served by SvelteKit)
+app.get("/", (c) => {
+  return c.json({
+    message: "Bulk Email Sender API",
+    version: "2.0.0",
+    docs: "See /health for status",
+  });
+});
 
 export default app;
