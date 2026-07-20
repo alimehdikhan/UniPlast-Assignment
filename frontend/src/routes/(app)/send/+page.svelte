@@ -49,21 +49,24 @@
     document.head.appendChild(link);
     
     await tick();
-    quill = new Quill('#editor', {
-      theme: 'snow',
-      placeholder: 'Write your email content here... Use {{FirstName}}, {{Company}} for personalization.',
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ color: [] }, { background: [] }],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          [{ align: [] }],
-          ['link', 'image'],
-          ['clean']
-        ]
-      }
-    });
+    const editorEl = document.getElementById('editor');
+    if (editorEl) {
+      quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Write your email content here... Use {{FirstName}}, {{Company}} for personalization.',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ color: [] }, { background: [] }],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            [{ align: [] }],
+            ['link', 'image'],
+            ['clean']
+          ]
+        }
+      });
+    }
 
     // Setup minimum scheduled time
     const now = new Date();
