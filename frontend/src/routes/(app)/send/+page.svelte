@@ -221,7 +221,7 @@
           
           <div class="flex flex-col gap-1.5">
             <label for="subject" class="font-label-md text-on-surface-variant">Subject Line <span class="text-error">*</span></label>
-            <input id="subject" type="text" bind:value={subject} class="px-4 py-3 border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" placeholder="E.g., Special Offer for {{FirstName}} at {{Company}}" required />
+            <input id="subject" type="text" bind:value={subject} class="px-4 py-3 border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-sm outline-none" placeholder="E.g., Special Offer for {'{{'}FirstName{'}}'} at {'{{'}Company{'}}'}" required />
             <small class="text-on-surface-variant opacity-80 text-xs">Use {"{{ColumnName}}"} for personalization based on Excel columns.</small>
           </div>
           
